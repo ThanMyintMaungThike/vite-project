@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/all.min.css">
+    <title>Document</title>
+    <style>
+        #done li {
+            opacity: 0.5;
+        }
+        #done .fa-check {
+            display: none;
+        }
+    </style>
+</head> 
+<body>
+    <nav class="navbar bg-danger navbar-dark mb-4">
+        <div class="container" style="max-width:600px;">
+            <a href="#" class="navbar-brand">Todo App</a>
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a href="#" class="nav-link" id="clear">CLEAR</a>
+                </li>
+            </ul> 
+        </div> 
+    </nav> 
+
+    <div class="container" styel="max-width:600px;">
+        <div class="input-group">
+            <input type="text" id="text" class="form-control">
+            <button class="btn btn-danger">ADD</button>
+        </div>
+
+        <ul id="todo" class="list-group my-4"></ul>
+        <ul id="done" class="list-group"></ul>
+    </div>
+    
+    <!-- <ul id="todo" class="list-group my-4"></ul>
+    <ul id="done"></ul> -->
+
+     
+    <script>
+        document.querySelector("#clear").onclick = function() {
+            document.querySelector("#done").innerHTML = "";
+
+        }
+
+        let data = JSON.parse(localStorage.getItem('data')) || [];
+        data.map(item => {
+            if(item.done) {
+                document
+                .querySelector("#done")
+                .appendChild(createTask(item.name));
+            } else {
+                document
+                .querySelector("#todo")
+                .appendChild(createTask(item.name));
+            }
+        });
+
+        function save(item) {
+            // console.log(item);
+            let data = JSON.parse( localStorage.getItem('data') ) || [];
+            data.push(item);
+            // newdata(item)
+            localStorage.setItem('data', JSON.stringify(data));
+        }
+
+        function remove(name) {
+            let data = JSON.parse(localStorage.getItem('data')) || [];
+            let result = data.filter((item => item.name !== name));
+            localStorage.setItem('data', JSON.stringify(result));
+
+        }
+
+        function done(name) {
+            let data = JSON.parse(localStorage.getItem('data')) || [];
+
+            let result = data.map(item => {
+                if(item.name === name ) item.done = true;
+                return item;
+            })
+
+            localStorage.setItem('data', JSON.stringify(result));
+        }
+
+        document.querySelector("button").onclick = function() {
+            let name = document.querySelector("#text").value;
+
+            if(!name) return false;
+
+            save({ name, done: false });
+            // let item = { name, done: false}
+            // save(item);
+            // console.log(item);
+
+            // save(item = {name, done : false})
+            // save( item = {name : name, done: false });
+            // save({name:name, done:false})
+
+            document
+            .querySelector("#todo")
+            .appendChild(createTask(name));
+
+            document.querySelector("#text").value = "";
+            document.querySelector("#text").focus();
+        }
+
+        document.querySelector("#text").onkeydown = function(e){
+            if(e.which === 13) {
+                document.querySelector("button").onclick(); 
+            }
+        }
+
+        function createTask(name) {
+            let li = document.createElement("li");
+            li.classList.add("list-group-item");
+            li.textContent = name;
+
+            let del = document.createElement("a");
+            del.setAttribute("href", "#");
+            del.classList.add("fas", "fa-trash", "float-end"
+            , "text-danger");
+            // del.textContent = "DEL";
+
+            del.onclick = function() {
+                remove(name);
+
+                del.parentElement.remove();
+            }
+
+            let check = document.createElement("a");
+            check.setAttribute("href", "#");
+            check.classList.add("fas", "fa-check", "float-start", "me-3");
+            // check.textContent = "Done";
+            check.onclick = function() {
+                // check.parentElement.style.opacity ="0.5";
+                done(name);
+                document
+                .querySelector("#done")
+                .appendChild(check.parentElement);
+
+                // check.remove();
+            }
+
+            li.appendChild(del);
+            li.appendChild(check);
+
+            return li;
+        }
+    </script>
+</body>
+</html>
